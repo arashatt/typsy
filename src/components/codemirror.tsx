@@ -4,12 +4,10 @@ import { $typst } from "@myriaddreamin/typst.ts";
 import { TypstDocument } from "@myriaddreamin/typst.react";
 
 $typst.setCompilerInitOptions({
-  getModule: () =>
-    "https://cdn.jsdelivr.net/npm/@myriaddreamin/typst-ts-web-compiler/pkg/typst_ts_web_compiler_bg.wasm",
+  getModule: () => "/typst_ts_web_compiler_bg.wasm",
 });
 $typst.setRendererInitOptions({
-  getModule: () =>
-    "https://cdn.jsdelivr.net/npm/@myriaddreamin/typst-ts-renderer/pkg/typst_ts_renderer_bg.wasm",
+  getModule: () => "/typst_ts_renderer_bg.wasm",
 });
 
 // into vector format
