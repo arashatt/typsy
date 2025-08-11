@@ -25,6 +25,10 @@ function Codemirror() {
   // useEffect(() => {
   //   setCode1(code);
   // });
+  TypstDocument.setWasmModuleInitOptions({
+    getModule: () => "/typst_ts_renderer_bg.wasm",
+    beforeBuild: [],
+  });
 
   useEffect(() => {
     async function fetchData() {
