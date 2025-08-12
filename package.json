@@ -13,6 +13,7 @@
     "@myriaddreamin/typst-ts-web-compiler": "^0.6.1-rc2",
     "@myriaddreamin/typst.react": "^0.6.1-rc2",
     "@myriaddreamin/typst.ts": "^0.6.1-rc2",
+    "@radix-ui/react-dialog": "^1.1.14",
     "@radix-ui/react-label": "^2.1.7",
     "@radix-ui/react-slot": "^1.2.3",
     "@tailwindcss/vite": "^4.1.11",
