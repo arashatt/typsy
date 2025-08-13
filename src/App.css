@@ -2,6 +2,27 @@
 @import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
+.cm-line {
+  font-family: "Cascadia Mono", monospace !important;
+  font-size: 16px;
+}
+
+.cm-gutters {
+  font-family: "Cascadia Mono", monospace !important;
+  font-size: 16px;
+}
+
+.cascadia-mono-Cascadia {
+  font-family: "Cascadia Mono", monospace;
+  font-optical-sizing: auto;
+  font-weight: 450;
+  font-style: normal;
+}
+
+html,
+body {
+  font-family: "Hanken Grotesk", sans-serif;
+}
 
 :root {
   --background: oklch(1 0 0);
