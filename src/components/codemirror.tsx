@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, Suspense } from "react";
 import CodeMirror from "@uiw/react-codemirror";
 import { $typst } from "@myriaddreamin/typst.ts";
 import { TypstDocument } from "@myriaddreamin/typst.react";
@@ -15,7 +15,9 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "./ui/button";
+import TypstWorker from "./typstWorker?worker"; // Vite syntax
 
+// Init Typst WASM modules (for PDF generation)
 $typst.setCompilerInitOptions({
   getModule: () => "/typst_ts_web_compiler_bg.wasm",
 });
@@ -31,20 +33,13 @@ function Codemirror() {
   const [code, setCode] = useState("");
   const [vector, setVector] = useState<Uint8Array | null>(null);
 
-  // For resizable panes, keyboard accessible divider, etc. (omitted here for brevity)
-
-  // --- Dialog state ---
   const [dialogOpen, setDialogOpen] = useState(false);
   const [fileName, setFileName] = useState("document.pdf");
   const [downloadInProgress, setDownloadInProgress] = useState(false);
+
   // Listen for Ctrl+S / Cmd+S
   useEffect(() => {
-    const handler = (e: {
-      ctrlKey: any;
-      metaKey: any;
-      key: string;
-      preventDefault: () => void;
-    }) => {
+    const handler = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s") {
         e.preventDefault();
         setDialogOpen(true);
@@ -54,27 +49,26 @@ function Codemirror() {
     return () => window.removeEventListener("keydown", handler);
   }, []);
 
+  // Compile Typst -> vector using worker
   useEffect(() => {
     if (!code) {
       setVector(null);
       return;
     }
-    let isCancelled = false;
-    async function fetchVector() {
-      try {
-        const result = await $typst.vector({ mainContent: code });
-        if (!isCancelled) setVector(result ?? new Uint8Array());
-      } catch (error) {
-        console.error("Failed to generate vector:", error);
-      }
-    }
-    fetchVector();
+
+    const worker = new TypstWorker();
+    worker.postMessage({ code });
+    worker.onmessage = (e: MessageEvent<Uint8Array | null>) => {
+      setVector(e.data);
+    };
+    
+
     return () => {
-      isCancelled = true;
+      worker.terminate();
     };
   }, [code]);
 
-  // New: download PDF with given filename
+  // PDF download (still handled on main thread)
   const downloadPdf = useCallback(async () => {
     if (!fileName.trim()) {
       alert("Please enter a valid file name.");
@@ -91,7 +85,6 @@ function Codemirror() {
       link.href = URL.createObjectURL(pdfBlob);
       link.target = "_blank";
 
-      // Ensure filename ends with .pdf
       const normalizedFileName = fileName.toLowerCase().endsWith(".pdf")
         ? fileName
         : fileName + ".pdf";
@@ -100,7 +93,7 @@ function Codemirror() {
       link.click();
       URL.revokeObjectURL(link.href);
 
-      setDialogOpen(false); // close dialog after download
+      setDialogOpen(false);
     } catch (error) {
       console.error("Failed to download PDF:", error);
       alert("An error occurred while downloading the PDF.");
@@ -121,11 +114,9 @@ function Codemirror() {
           >
             Download PDF
           </Button>
-          {/* Dialog for filename input and download */}
           <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
             <DialogTrigger asChild>
-              {/* Hidden trigger because we're controlling open state manually */}
-              <></>
+              {/* Hidden trigger */}
             </DialogTrigger>
             <DialogContent className="sm:max-w-md">
               <DialogHeader>
@@ -149,9 +140,9 @@ function Codemirror() {
                   className="text-lg px-3 py-2"
                   onKeyDown={(e) => {
                     if (e.key === "Enter") {
-                      e.preventDefault(); // prevent form submission or dialog close
+                      e.preventDefault();
                       if (fileName.trim().length > 0 && !downloadInProgress) {
-                        downloadPdf(); // your download handler
+                        downloadPdf();
                       }
                     }
                   }}
@@ -181,11 +172,8 @@ function Codemirror() {
         </div>
       </header>
 
-      {/* The rest of your editor and preview panes remain unchanged */}
-
-      {/* Example stub for editor/preview layout — replace with your current implementation */}
+      {/* Editor + Preview */}
       <main className="flex-grow flex flex-col md:flex-row overflow-hidden border-t border-gray-200">
-        {/* Editor and preview here */}
         <section className="w-full md:w-1/2 p-4 bg-white shadow-inner overflow-auto">
           <CodeMirror
             placeholder="Start Writing"
@@ -196,13 +184,15 @@ function Codemirror() {
           />
         </section>
         <section className="w-full md:w-1/2 p-4 bg-white shadow-inner overflow-auto border-t md:border-t-0 md:border-l border-gray-200 flex-grow">
-          {vector ? (
-            <TypstDocument artifact={vector} />
-          ) : (
-            <div className="text-center text-gray-500 mt-20">
-              Start typing to see preview
-            </div>
-          )}
+          <Suspense fallback={<div className="text-center mt-20">Loading…</div>}>
+            {vector ? (
+              <TypstDocument artifact={vector} />
+            ) : (
+              <div className="text-center text-gray-500 mt-20">
+                Start typing to see preview
+              </div>
+            )}
+          </Suspense>
         </section>
       </main>
     </div>
@@ -210,3 +200,4 @@ function Codemirror() {
 }
 
 export default Codemirror;
+

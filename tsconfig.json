@@ -5,6 +5,7 @@
     { "path": "./tsconfig.node.json" }
   ],
     "compilerOptions": {
+    "lib": ["webworker"], // Ensure "webworker" is included
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]

@@ -10,6 +10,16 @@ export default defineConfig({
     host: '0.0.0.0', // listen on all IPs
     port: 3000,      // optional, choose your port
   },
+    build: {
+    rollupOptions: {
+      output: {
+        format: "es", // ✅ must be "es" for workers
+      },
+    },
+  },
+  worker: {
+    format: "es", // ✅ specifically for ?worker imports
+  },
     plugins: [    tanstackRouter({
       target: 'react',
       autoCodeSplitting: true,
