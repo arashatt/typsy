@@ -1,7 +1,8 @@
 import { useEffect, useState, useCallback } from "react";
+import { Suspense, lazy } from "react";
 import CodeMirror from "@uiw/react-codemirror";
 import { $typst } from "@myriaddreamin/typst.ts";
-import { TypstDocument } from "@myriaddreamin/typst.react";
+const TypstDocumentLazy = lazy(() => import("./TypstDocumentWrapper"));
 import {
   Dialog,
   DialogClose,
@@ -22,11 +23,6 @@ $typst.setCompilerInitOptions({
 $typst.setRendererInitOptions({
   getModule: () => "/typst_ts_renderer_bg.wasm",
 });
-TypstDocument.setWasmModuleInitOptions({
-  getModule: () => "/typst_ts_renderer_bg.wasm",
-  beforeBuild: [],
-});
-
 function Codemirror() {
   const [code, setCode] = useState("");
   const [vector, setVector] = useState<Uint8Array | null>(null);
@@ -196,13 +192,15 @@ function Codemirror() {
           />
         </section>
         <section className="w-full md:w-1/2 p-4 bg-white shadow-inner overflow-auto border-t md:border-t-0 md:border-l border-gray-200 flex-grow">
-          {vector ? (
-            <TypstDocument artifact={vector} />
-          ) : (
-            <div className="text-center text-gray-500 mt-20">
-              Start typing to see preview
-            </div>
-          )}
+          <Suspense fallback={<div>Loading preview…</div>}>
+            {vector && vector instanceof Uint8Array ? (
+              <TypstDocumentLazy artifact={vector ?? new Uint8Array()} />
+            ) : (
+              <div className="text-center text-gray-500 mt-20">
+                Start typing to see preview
+              </div>
+            )}
+          </Suspense>
         </section>
       </main>
     </div>
