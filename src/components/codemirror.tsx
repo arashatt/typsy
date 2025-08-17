@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { Suspense, lazy } from "react";
 import CodeMirror from "@uiw/react-codemirror";
-import { $typst } from "@myriaddreamin/typst.ts";
+import { $typst, preloadRemoteFonts } from "@myriaddreamin/typst.ts";
 const TypstDocumentLazy = lazy(() => import("./TypstDocumentWrapper"));
 import {
   Dialog,
@@ -18,6 +18,14 @@ import { Label } from "@/components/ui/label";
 import { Button } from "./ui/button";
 
 $typst.setCompilerInitOptions({
+  beforeBuild: [
+    preloadRemoteFonts([
+      "/EBGaramond-VariableFont_wght.ttf",
+      "/nazli.ttf",
+      "/BTitr.ttf",
+    ]),
+  ],
+
   getModule: () => "/typst_ts_web_compiler_bg.wasm",
 });
 $typst.setRendererInitOptions({
