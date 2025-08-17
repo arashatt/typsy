@@ -129,7 +129,6 @@ function Codemirror() {
           <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
             <DialogTrigger asChild>
               {/* Hidden trigger because we're controlling open state manually */}
-              <></>
             </DialogTrigger>
             <DialogContent className="sm:max-w-md">
               <DialogHeader>
