@@ -1,7 +1,9 @@
 import { useEffect, useState, useCallback } from "react";
 import { Suspense, lazy } from "react";
-import CodeMirror from "@uiw/react-codemirror";
+import CodeMirror, { keymap } from "@uiw/react-codemirror";
 import { $typst, preloadRemoteFonts } from "@myriaddreamin/typst.ts";
+import { EditorView } from "@codemirror/view";
+import { defaultKeymap } from "@codemirror/commands";
 const TypstDocumentLazy = lazy(() => import("./TypstDocumentWrapper"));
 import {
   Dialog,
@@ -31,11 +33,32 @@ $typst.setCompilerInitOptions({
 $typst.setRendererInitOptions({
   getModule: () => "/typst_ts_renderer_bg.wasm",
 });
+
 function Codemirror() {
   const [code, setCode] = useState("");
   const [vector, setVector] = useState<Uint8Array | null>(null);
-
+  const [direction, setDirection] = useState<"rtl" | "ltr">("ltr");
   // For resizable panes, keyboard accessible divider, etc. (omitted here for brevity)
+  const rtlTheme = EditorView.theme({
+    "&": {
+      direction: "rtl",
+      textAlign: "right",
+    },
+  });
+
+  const ltrTheme = EditorView.theme({
+    "&": {
+      direction: "ltr",
+      textAlign: "left",
+    },
+  });
+  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+    if (e.ctrlKey && e.code === "ShiftLeft") {
+      setDirection("ltr");
+    } else if (e.ctrlKey && e.code === "ShiftRight") {
+      setDirection("rtl");
+    }
+  }, []);
 
   // --- Dialog state ---
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -77,6 +100,42 @@ function Codemirror() {
       isCancelled = true;
     };
   }, [code]);
+
+  const onCopyAll = (view: EditorView) => {
+    const text = view.state.doc.toString();
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text);
+    } else {
+      // save current selection and focus
+      const prevFocus = document.activeElement;
+      const prevSelection = view.state.selection;
+
+      const textarea = document.createElement("textarea");
+      textarea.value = text;
+      textarea.style.position = "fixed"; // avoid scrolling
+      textarea.style.opacity = "0"; // hide
+      document.body.appendChild(textarea);
+
+      textarea.select();
+      try {
+        document.execCommand("copy");
+        console.log("Copied with execCommand!");
+      } catch (err) {
+        console.error("Fallback copy failed", err);
+      }
+
+      document.body.removeChild(textarea);
+
+      // restore focus and selection
+      view.focus();
+      view.dispatch({
+        selection: prevSelection,
+      });
+    }
+
+    return true; // prevent default
+  };
 
   // New: download PDF with given filename
   const downloadPdf = useCallback(async () => {
@@ -189,13 +248,28 @@ function Codemirror() {
       {/* Example stub for editor/preview layout — replace with your current implementation */}
       <main className="flex-grow flex flex-col md:flex-row overflow-hidden border-t border-gray-200">
         {/* Editor and preview here */}
-        <section className="w-full md:w-1/2 p-4 bg-white shadow-inner overflow-auto">
+        <section
+          onKeyDown={handleKeyDown}
+          tabIndex={0}
+          className="w-full md:w-1/2 p-4 bg-white shadow-inner overflow-auto"
+        >
           <CodeMirror
             placeholder="Start Writing"
             value={code}
             height="100%"
             className="h-full rounded-md border border-gray-300"
             onChange={(value) => setCode(value)}
+            extensions={[
+              direction === "rtl" ? rtlTheme : ltrTheme,
+              keymap.of([
+                ...defaultKeymap,
+                {
+                  key: "Ctrl-Alt-c", // or "Mod-c", "Cmd-c" for macOS
+                  run: onCopyAll,
+                  preventDefault: true,
+                },
+              ]),
+            ]}
           />
         </section>
         <section className="w-full md:w-1/2 p-4 bg-white shadow-inner overflow-auto border-t md:border-t-0 md:border-l border-gray-200 flex-grow">
