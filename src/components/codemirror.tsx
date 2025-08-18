@@ -108,7 +108,6 @@ function Codemirror() {
       navigator.clipboard.writeText(text);
     } else {
       // save current selection and focus
-      const prevFocus = document.activeElement;
       const prevSelection = view.state.selection;
 
       const textarea = document.createElement("textarea");
