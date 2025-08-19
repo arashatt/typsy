@@ -1,6 +1,7 @@
 import { createFileRoute, useLocation } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { useIsPresent, AnimatePresence, motion } from "framer-motion";
+import CommentForm from "@/components/CommentForm";
 
 export const Route = createFileRoute("/")({
   component: Index,
@@ -40,6 +41,7 @@ function Index() {
             This is the about page content. You can add any static or dynamic
             information here.
           </p>
+          <CommentForm />
         </motion.div>
       </AnimatePresence>
 

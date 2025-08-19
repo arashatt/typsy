@@ -3,11 +3,11 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useIsPresent } from "framer-motion";
 import Codemirror from "@/components/codemirror";
 
-export const Route = createFileRoute("/about")({
-  component: About,
+export const Route = createFileRoute("/editor")({
+  component: Editor,
 });
 
-function About() {
+function Editor() {
   const location = useLocation();
   const isPresent = useIsPresent();
 
