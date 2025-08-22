@@ -1,15 +1,7 @@
 import { createFileRoute, useLocation } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useIsPresent, AnimatePresence, motion } from "framer-motion";
 import CommentForm from "@/components/CommentForm";
-import { GoogleLogin } from "@react-oauth/google";
-import { jwtDecode } from "jwt-decode";
-
-type GoogleUser = {
-  name: string;
-  email: string;
-  picture: string;
-};
 
 export const Route = createFileRoute("/")({
   component: Index,
@@ -18,7 +10,6 @@ export const Route = createFileRoute("/")({
 function Index() {
   const isPresent = useIsPresent();
   const location = useLocation();
-  const [user, setUser] = useState<GoogleUser | null>(null);
   // Uncomment and use if you want to block navigation with a confirmation dialog
   /*
   const { proceed, reset, status, next } = useBlocker({
@@ -34,31 +25,6 @@ function Index() {
 
   return (
     <>
-      <div>
-        {!user ? (
-          <GoogleLogin
-            onSuccess={(credentialResponse) => {
-              if (credentialResponse.credential) {
-                const decoded: any = jwtDecode(credentialResponse.credential);
-                setUser({
-                  name: decoded.name,
-                  email: decoded.email,
-                  picture: decoded.picture,
-                });
-              }
-            }}
-            onError={() => {
-              console.log("Login Failed");
-            }}
-          />
-        ) : (
-          <div>
-            <h2>Welcome {user.name}</h2>
-            <p>Email: {user.email}</p>
-            <img src={user.picture} alt="profile" />
-          </div>
-        )}
-      </div>
       <AnimatePresence mode="wait">
         <motion.div
           key={location.pathname}

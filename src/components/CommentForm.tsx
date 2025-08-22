@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { GoogleLogin } from "@react-oauth/google";
+import { jwtDecode } from "jwt-decode";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -10,11 +12,18 @@ import {
 } from "@/components/ui/card";
 import { Star } from "lucide-react";
 
+type GoogleUser = {
+  name: string;
+  email: string;
+  picture: string;
+};
+
 export default function CommentForm() {
   const [loading, setLoading] = useState(false);
   const [rating, setRating] = useState(0);
   const [hover, setHover] = useState(0);
   const [error, setError] = useState("");
+  const [user, setUser] = useState<GoogleUser | null>(null);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -31,9 +40,11 @@ export default function CommentForm() {
 
     // Convert numeric rating → stars text
     const ratingText = "★".repeat(rating) + "☆".repeat(5 - rating);
-
+    if (!user?.name) {
+      throw new Error("User name is required");
+    }
     const formData = {
-      name: (form.elements.namedItem("name") as HTMLInputElement).value,
+      name: user?.name,
       // Append stars directly to message
       message:
         (form.elements.namedItem("message") as HTMLTextAreaElement).value +
@@ -61,7 +72,29 @@ export default function CommentForm() {
       </CardHeader>
       <form onSubmit={handleSubmit}>
         <CardContent className="space-y-4">
-          <Input name="name" placeholder="Your Name" required />
+          <div>
+            {!user ? (
+              <GoogleLogin
+                onSuccess={(credentialResponse) => {
+                  if (credentialResponse.credential) {
+                    const decoded: any = jwtDecode(
+                      credentialResponse.credential
+                    );
+                    setUser({
+                      name: decoded.name,
+                      email: decoded.email,
+                      picture: decoded.picture,
+                    });
+                  }
+                }}
+                onError={() => {
+                  console.log("Login Failed");
+                }}
+              />
+            ) : (
+              <Input name="name" placeholder={user.name} key="NAME" disabled />
+            )}
+          </div>
           <Textarea name="message" placeholder="Your Comment" required />
 
           {/* Rating Stars */}
