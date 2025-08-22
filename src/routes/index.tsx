@@ -2,7 +2,6 @@ import { createFileRoute, useLocation } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useIsPresent, AnimatePresence, motion } from "framer-motion";
 import CommentForm from "@/components/CommentForm";
-import { GoogleOAuthProvider } from "@react-oauth/google";
 import { GoogleLogin } from "@react-oauth/google";
 import { jwtDecode } from "jwt-decode";
 
