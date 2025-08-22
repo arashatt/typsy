@@ -4,6 +4,7 @@ import CodeMirror, { keymap } from "@uiw/react-codemirror";
 import { $typst, preloadRemoteFonts } from "@myriaddreamin/typst.ts";
 import { EditorView } from "@codemirror/view";
 import { defaultKeymap } from "@codemirror/commands";
+import { Progress } from "@heroui/react";
 const TypstDocumentLazy = lazy(() => import("./TypstDocumentWrapper"));
 import {
   Dialog,
@@ -36,6 +37,7 @@ $typst.setRendererInitOptions({
 
 function Codemirror() {
   const [code, setCode] = useState("");
+  const [loading, setLoading] = useState(false);
   const [vector, setVector] = useState<Uint8Array | null>(null);
   const [direction, setDirection] = useState<"rtl" | "ltr">("ltr");
   // For resizable panes, keyboard accessible divider, etc. (omitted here for brevity)
@@ -66,6 +68,12 @@ function Codemirror() {
   const [downloadInProgress, setDownloadInProgress] = useState(false);
   // Listen for Ctrl+S / Cmd+S
   useEffect(() => {
+    async function initializeCompiler() {
+      setLoading(true);
+      await $typst.getCompiler();
+      setLoading(false);
+    }
+    initializeCompiler();
     const handler = (e: {
       ctrlKey: any;
       metaKey: any;
@@ -172,118 +180,133 @@ function Codemirror() {
   }, [code, fileName]);
 
   return (
-    <div className="h-screen flex flex-col bg-gray-50 text-gray-900">
-      {/* Toolbar */}
-      <header className="flex items-center justify-between px-6 py-3 bg-white shadow-md border-b border-gray-200">
-        <h1 className="text-xl font-semibold">Typst Editor</h1>
-        <div className="flex items-center space-x-3">
-          <Button
-            onClick={() => setDialogOpen(true)}
-            className="whitespace-nowrap"
-          >
-            Download PDF
-          </Button>
-          {/* Dialog for filename input and download */}
-          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-            <DialogTrigger asChild>
-              {/* Hidden trigger because we're controlling open state manually */}
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-md">
-              <DialogHeader>
-                <DialogTitle>Download PDF</DialogTitle>
-                <DialogDescription>
-                  Enter a file name for the PDF download.
-                </DialogDescription>
-              </DialogHeader>
+    <>
+      <title>Live Typst Editor – Create Beautiful Documents Online</title>
+      <div className="h-screen flex flex-col bg-gray-50 text-gray-900">
+        {/* Toolbar */}
+        <header className="flex items-center justify-between px-6 py-3 bg-white shadow-md border-b border-gray-200">
+          <h1 className="text-xl font-semibold">
+            Typst Editor{loading ? "Loading" : "Loaded"}
+            <Progress
+              aria-label="Downloading..."
+              className="max-w-md"
+              color="success"
+              showValueLabel={true}
+              size="md"
+              value={20}
+            />
+          </h1>
+          <div className="flex items-center space-x-3">
+            <Button
+              onClick={() => setDialogOpen(true)}
+              className="whitespace-nowrap"
+            >
+              Download PDF
+            </Button>
+            {/* Dialog for filename input and download */}
+            <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+              <DialogTrigger asChild>
+                {/* Hidden trigger because we're controlling open state manually */}
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-md">
+                <DialogHeader>
+                  <DialogTitle>Download PDF</DialogTitle>
+                  <DialogDescription>
+                    Enter a file name for the PDF download.
+                  </DialogDescription>
+                </DialogHeader>
 
-              <div className="mt-4">
-                <Label htmlFor="fileName" className="mb-1 block font-medium">
-                  File Name
-                </Label>
-                <Input
-                  id="fileName"
-                  type="text"
-                  value={fileName}
-                  onChange={(e) => setFileName(e.target.value)}
-                  autoFocus
-                  onFocus={(e) => e.target.select()}
-                  className="text-lg px-3 py-2"
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      e.preventDefault(); // prevent form submission or dialog close
-                      if (fileName.trim().length > 0 && !downloadInProgress) {
-                        downloadPdf(); // your download handler
+                <div className="mt-4">
+                  <Label htmlFor="fileName" className="mb-1 block font-medium">
+                    File Name
+                  </Label>
+                  <Input
+                    id="fileName"
+                    type="text"
+                    value={fileName}
+                    onChange={(e) => setFileName(e.target.value)}
+                    autoFocus
+                    onFocus={(e) => e.target.select()}
+                    className="text-lg px-3 py-2"
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault(); // prevent form submission or dialog close
+                        if (fileName.trim().length > 0 && !downloadInProgress) {
+                          downloadPdf(); // your download handler
+                        }
                       }
-                    }
-                  }}
-                />
-              </div>
+                    }}
+                  />
+                </div>
 
-              <DialogFooter className="mt-6 flex justify-end space-x-2">
-                <DialogClose asChild>
+                <DialogFooter className="mt-6 flex justify-end space-x-2">
+                  <DialogClose asChild>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      disabled={downloadInProgress}
+                    >
+                      Cancel
+                    </Button>
+                  </DialogClose>
                   <Button
                     type="button"
-                    variant="outline"
+                    onClick={downloadPdf}
                     disabled={downloadInProgress}
                   >
-                    Cancel
+                    {downloadInProgress ? "Downloading..." : "Download"}
                   </Button>
-                </DialogClose>
-                <Button
-                  type="button"
-                  onClick={downloadPdf}
-                  disabled={downloadInProgress}
-                >
-                  {downloadInProgress ? "Downloading..." : "Download"}
-                </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
-        </div>
-      </header>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          </div>
+        </header>
 
-      {/* The rest of your editor and preview panes remain unchanged */}
+        {/* The rest of your editor and preview panes remain unchanged */}
 
-      {/* Example stub for editor/preview layout — replace with your current implementation */}
-      <main className="flex-grow flex flex-col md:flex-row overflow-hidden border-t border-gray-200">
-        {/* Editor and preview here */}
-        <section
-          onKeyDown={handleKeyDown}
-          tabIndex={0}
-          className="w-full md:w-1/2 p-4 bg-white shadow-inner overflow-auto"
-        >
-          <CodeMirror
-            placeholder="Start Writing"
-            value={code}
-            height="100%"
-            className="h-full rounded-md border border-gray-300"
-            onChange={(value) => setCode(value)}
-            extensions={[
-              direction === "rtl" ? rtlTheme : ltrTheme,
-              keymap.of([
-                ...defaultKeymap,
-                {
-                  key: "Ctrl-Alt-c", // or "Mod-c", "Cmd-c" for macOS
-                  run: onCopyAll,
-                  preventDefault: true,
-                },
-              ]),
-            ]}
-          />
-        </section>
-        <section className="w-full md:w-1/2 p-4 bg-white shadow-inner overflow-auto border-t md:border-t-0 md:border-l border-gray-200 flex-grow">
-          <Suspense fallback={<div>Loading preview…</div>}>
-            {vector && vector instanceof Uint8Array ? (
-              <TypstDocumentLazy artifact={vector ?? new Uint8Array()} />
-            ) : (
-              <div className="text-center text-gray-500 mt-20">
-                Start typing to see preview
-              </div>
-            )}
-          </Suspense>
-        </section>
-      </main>
-    </div>
+        {/* Example stub for editor/preview layout — replace with your current implementation */}
+        <main className="flex-grow flex flex-col md:flex-row overflow-hidden border-t border-gray-200">
+          {/* Editor and preview here */}
+          <section
+            onKeyDown={handleKeyDown}
+            tabIndex={0}
+            className="w-full md:w-1/2 p-4 bg-white shadow-inner overflow-auto"
+          >
+            <CodeMirror
+              placeholder="Start Writing"
+              value={code}
+              height="100%"
+              className="h-full rounded-md border border-gray-300"
+              onChange={(value) => setCode(value)}
+              extensions={[
+                direction === "rtl" ? rtlTheme : ltrTheme,
+                keymap.of([
+                  ...defaultKeymap,
+                  {
+                    key: "Ctrl-Alt-c", // or "Mod-c", "Cmd-c" for macOS
+                    run: onCopyAll,
+                    preventDefault: true,
+                  },
+                ]),
+              ]}
+            />
+          </section>
+          <section className="w-full md:w-1/2 p-4 bg-white shadow-inner overflow-auto border-t md:border-t-0 md:border-l border-gray-200 flex-grow">
+            <Suspense fallback={<div>Loading preview…</div>}>
+              {vector && vector instanceof Uint8Array ? (
+                <TypstDocumentLazy artifact={vector ?? new Uint8Array()} />
+              ) : (
+                <Progress
+                  aria-label="Loading..."
+                  className="max-w-md"
+                  value={60}
+                />
+              )}
+            </Suspense>
+          </section>
+        </main>
+      </div>
+    </>
   );
 }
 

@@ -1,8 +1,8 @@
 import { createFileRoute, useLocation } from "@tanstack/react-router";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useIsPresent, AnimatePresence, motion } from "framer-motion";
 import CommentForm from "@/components/CommentForm";
-
+import { useGoogleOneTapLogin } from '@react-oauth/google';
 export const Route = createFileRoute("/")({
   component: Index,
 });
@@ -10,7 +10,7 @@ export const Route = createFileRoute("/")({
 function Index() {
   const isPresent = useIsPresent();
   const location = useLocation();
-
+  const [user, setUser ]= useState("")
   // Uncomment and use if you want to block navigation with a confirmation dialog
   /*
   const { proceed, reset, status, next } = useBlocker({
@@ -18,6 +18,17 @@ function Index() {
     withResolver: true,
   })
   */
+    useGoogleOneTapLogin({
+  onSuccess: credentialResponse => {
+    console.log(credentialResponse);
+            setUser(credentialResponse.clientId ?? "")
+
+  },
+  onError: () => {
+    console.log('Login Failed');
+
+  },
+});
 
   useEffect(() => {
     console.log("isPresent changed:", isPresent);
@@ -27,6 +38,9 @@ function Index() {
 
   return (
     <>
+
+
+{user}
       <AnimatePresence mode="wait">
         <motion.div
           key={location.pathname}

@@ -1,6 +1,8 @@
 import { StrictMode } from "react";
 import ReactDOM from "react-dom/client";
 import { RouterProvider, createRouter } from "@tanstack/react-router";
+import { GoogleOAuthProvider } from "@react-oauth/google";
+import { HeroUIProvider } from "@heroui/react";
 import "./App.css";
 
 // Import the generated route tree
@@ -22,8 +24,12 @@ if (!rootElement.innerHTML) {
   const root = ReactDOM.createRoot(rootElement);
   root.render(
     <StrictMode>
-      <RouterProvider router={router} />
-    </StrictMode>,
+      <HeroUIProvider>
+        <GoogleOAuthProvider clientId="620535417342-df9iq6o9tndnt79terejlcdqqv9fb4ud.apps.googleusercontent.com">
+          <RouterProvider router={router} />
+        </GoogleOAuthProvider>
+      </HeroUIProvider>
+    </StrictMode>
   );
 }
 /*

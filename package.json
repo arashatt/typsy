@@ -10,12 +10,17 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@heroui/progress": "^2.2.20",
+    "@heroui/react": "^2.8.2",
+    "@heroui/system": "^2.4.20",
+    "@heroui/theme": "^2.4.20",
     "@myriaddreamin/typst-ts-web-compiler": "^0.6.1-rc2",
     "@myriaddreamin/typst.react": "^0.6.1-rc2",
     "@myriaddreamin/typst.ts": "^0.6.1-rc2",
     "@radix-ui/react-dialog": "^1.1.14",
     "@radix-ui/react-label": "^2.1.7",
     "@radix-ui/react-slot": "^1.2.3",
+    "@react-oauth/google": "^0.12.2",
     "@tailwindcss/vite": "^4.1.11",
     "@tanstack/react-router": "^1.130.12",
     "@tanstack/react-router-devtools": "^1.130.13",
@@ -26,8 +31,8 @@
     "lodash": "^4.17.21",
     "lodash-es": "^4.17.21",
     "lucide-react": "^0.536.0",
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
     "react-icons": "^5.5.0",
     "tailwind-merge": "^3.3.1",
     "tailwindcss": "^4.1.11"

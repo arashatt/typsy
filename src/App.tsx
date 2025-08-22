@@ -1,5 +1,5 @@
 import { GalleryVerticalEnd } from "lucide-react";
-
+import { HeroUIProvider } from "@heroui/react";
 import { LoginForm } from "@/components/login-form";
 import { motion } from "framer-motion";
 
