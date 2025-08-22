@@ -1,4 +1,4 @@
-# Windows (on a system with no Admin privilages)
+# Windows (on a system with no Adminstrator privilages)
 Because I suffered so much to configure and run this projec On a Windows system with no Administor permissions, I want to add this file for the next person that may want to setup fast:
 
 ## Download Git and Node.Js
@@ -48,7 +48,7 @@ And Also `.vscode/settings.json`:
 ```json
 {
   // VS Code internal Node path for debugging and extensions
-  "node.path": "C:/Users/a.atari/<Path-To-npm-Directory>/node.exe",
+  "node.path": "C:/Users/a.atari/<Path-To-node-Directory>/node.exe",
 
   // Terminal profiles for Windows
   "terminal.integrated.profiles.windows": {
@@ -63,7 +63,7 @@ And Also `.vscode/settings.json`:
       ],
       "args": [
         "/k",
-        "set PATH=C:/Users/<Your-UserName>/<Path-To-nodejs-Directory>;%PATH%"
+        "set PATH=C:/Users/<Your-UserName>/<Path-To-npm-Directory>;%PATH%"
       ],
       "icon": "terminal-cmd"
     },
