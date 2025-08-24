@@ -88,7 +88,7 @@ And Also `.vscode/settings.json`:
 }
 ```
 
-== set environment in Powershell
+## set environment in Powershell
 This Command Saved my life:
 
 ```
