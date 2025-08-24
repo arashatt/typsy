@@ -87,3 +87,10 @@ And Also `.vscode/settings.json`:
   "terminal.integrated.defaultProfile.windows": "Command Prompt"
 }
 ```
+
+== set environment in Powershell
+This Command Saved my life:
+
+```
+$env:Path = "C:\Users\<username>\Downloads\PortableGit\bin;$env:Path"
+```
