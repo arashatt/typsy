@@ -3,7 +3,8 @@ import tailwindcss from "@tailwindcss/vite";
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import { tanstackRouter } from "@tanstack/router-plugin/vite";
-
+import { generateSitemap } from "tanstack-router-sitemap";
+import { sitemap } from "./src/utils/sitemap";
 // https://vite.dev/config/
 export default defineConfig({
   server: {
@@ -11,6 +12,7 @@ export default defineConfig({
     port: 3000, // optional, choose your port
   },
   plugins: [
+    generateSitemap(sitemap),
     tanstackRouter({
       target: "react",
       autoCodeSplitting: true,
