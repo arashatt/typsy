@@ -11,9 +11,6 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@heroui/progress": "^2.2.20",
-    "@heroui/react": "^2.8.2",
-    "@heroui/system": "^2.4.20",
     "@heroui/theme": "^2.4.20",
     "@myriaddreamin/typst-ts-web-compiler": "^0.6.1-rc2",
     "@myriaddreamin/typst.react": "^0.6.1-rc2",
@@ -28,7 +25,6 @@
     "@uiw/react-codemirror": "^4.24.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
-    "framer-motion": "^12.23.12",
     "jwt-decode": "^4.0.0",
     "lodash": "^4.17.21",
     "lodash-es": "^4.17.21",
