@@ -4,7 +4,6 @@ import CodeMirror, { keymap } from "@uiw/react-codemirror";
 import { $typst, preloadRemoteFonts } from "@myriaddreamin/typst.ts";
 import { EditorView } from "@codemirror/view";
 import { defaultKeymap } from "@codemirror/commands";
-import { Progress } from "@heroui/react";
 const TypstDocumentLazy = lazy(() => import("./TypstDocumentWrapper"));
 import {
   Dialog,
@@ -187,14 +186,6 @@ function Codemirror() {
         <header className="flex items-center justify-between px-6 py-3 bg-white shadow-md border-b border-gray-200">
           <h1 className="text-xl font-semibold">
             Typst Editor{loading ? "Loading" : "Loaded"}
-            <Progress
-              aria-label="Downloading..."
-              className="max-w-md"
-              color="success"
-              showValueLabel={true}
-              size="md"
-              value={20}
-            />
           </h1>
           <div className="flex items-center space-x-3">
             <Button
@@ -296,11 +287,7 @@ function Codemirror() {
               {vector && vector instanceof Uint8Array ? (
                 <TypstDocumentLazy artifact={vector ?? new Uint8Array()} />
               ) : (
-                <Progress
-                  aria-label="Loading..."
-                  className="max-w-md"
-                  value={60}
-                />
+                <p>loading</p>
               )}
             </Suspense>
           </section>

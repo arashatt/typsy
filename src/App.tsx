@@ -1,6 +1,5 @@
 import { GalleryVerticalEnd } from "lucide-react";
 import { LoginForm } from "@/components/login-form";
-import { motion } from "framer-motion";
 import ReactGA from "react-ga4";
 ReactGA.initialize("G-N2YXLD8G8X");
 export default function LoginPage() {
@@ -13,14 +12,8 @@ export default function LoginPage() {
           </div>
           Acme Inc.
         </a>
-        <motion.div
-          initial={{ y: 10, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          exit={{ y: -10, opacity: 0 }}
-          transition={{ duration: 0.2 }}
-        >
-          <LoginForm />
-        </motion.div>
+
+        <LoginForm />
       </div>
     </div>
   );
