@@ -1,14 +1,10 @@
 import { createFileRoute, useLocation } from "@tanstack/react-router";
-import { useEffect } from "react";
-import { useIsPresent, AnimatePresence, motion } from "framer-motion";
 import CommentForm from "@/components/CommentForm";
 
 export const Route = createFileRoute("/")({
   component: Index,
 });
-
 function Index() {
-  const isPresent = useIsPresent();
   const location = useLocation();
   // Uncomment and use if you want to block navigation with a confirmation dialog
   /*
@@ -17,31 +13,16 @@ function Index() {
     withResolver: true,
   })
   */
-  useEffect(() => {
-    console.log("isPresent changed:", isPresent);
-    // For example, you can react to isPresent change here
-    // if (isPresent && status === 'blocked') proceed()
-  }, [isPresent]);
-
   return (
     <>
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={location.pathname}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 2 }}
-        >
-          <h1 className="text-red-600">About Page</h1>
-          {isPresent ? "Present" : "Leaving..."}
-          <p className="mt-4 text-gray-700">
-            This is the about page content. You can add any static or dynamic
-            information here.
-          </p>
-          <CommentForm />
-        </motion.div>
-      </AnimatePresence>
+      <div key={location.pathname}>
+        <h1 className="text-red-600">About Page</h1>
+        <p className="mt-4 text-gray-700">
+          This is the about page content. You can add any static or dynamic
+          information here.
+        </p>
+        <CommentForm />
+      </div>
 
       {/* Uncomment this block if using navigation blocking */}
       {/* 
