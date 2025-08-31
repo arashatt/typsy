@@ -1,7 +1,4 @@
-import { motion } from "framer-motion";
 import { FaStar } from "react-icons/fa";
-
-const MotionStar = motion(FaStar);
 
 const Star = ({
   selected = false,
@@ -9,13 +6,7 @@ const Star = ({
 }: {
   selected?: boolean;
   onSelect?: () => void;
-}) => (
-  <MotionStar
-    whileHover={{ scale: 1.3 }}
-    color={selected ? "red" : "gray"}
-    onClick={onSelect}
-  />
-);
+}) => <FaStar color={selected ? "red" : "gray"} onClick={onSelect} />;
 
 const createArray = (length: number): undefined[] => [...Array(length)];
 
