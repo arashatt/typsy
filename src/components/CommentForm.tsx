@@ -36,6 +36,22 @@ export default function CommentForm() {
     fetchUser();
   }, []);
 
+  useEffect(() => {
+  async function fetchUser() {
+    try {
+      const res = await fetch("https://typeset.live/user", {
+        credentials: "include", // important: send HttpOnly cookie
+      });
+      if (!res.ok) return;
+      const data = await res.json();
+      setUser(data);
+    } catch (err) {
+      console.error(err);
+    }
+  }
+  fetchUser();
+}, []);
+
   // Fetch CSRF token from Worker
   async function getCSRFToken() {
     const res = await fetch("https://typeset.live/csrf", {
