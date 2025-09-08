@@ -1,21 +1,15 @@
-import { useState } from "react";
-import { GoogleLogin } from "@react-oauth/google";
-import { jwtDecode } from "jwt-decode";
+"use client";
+
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Card,
-  CardHeader,
-  CardContent,
-  CardFooter,
-} from "@/components/ui/card";
+import { Card, CardHeader, CardContent, CardFooter } from "@/components/ui/card";
 import { Star } from "lucide-react";
 
-type GoogleUser = {
+type User = {
   name: string;
   email: string;
-  picture: string;
 };
 
 export default function CommentForm() {
@@ -23,7 +17,34 @@ export default function CommentForm() {
   const [rating, setRating] = useState(0);
   const [hover, setHover] = useState(0);
   const [error, setError] = useState("");
-  const [user, setUser] = useState<GoogleUser | null>(null);
+  const [user, setUser] = useState<User | null>(null);
+
+  // Fetch logged-in user info from Worker
+  useEffect(() => {
+    async function fetchUser() {
+      try {
+        const res = await fetch("https://typeset.live/user", {
+          credentials: "include",
+        });
+        if (!res.ok) return;
+        const data = await res.json();
+        setUser(data);
+      } catch (err) {
+        console.error(err);
+      }
+    }
+    fetchUser();
+  }, []);
+
+  // Fetch CSRF token from Worker
+  async function getCSRFToken() {
+    const res = await fetch("https://typeset.live/csrf", {
+      credentials: "include",
+    });
+    if (!res.ok) throw new Error("Failed to get CSRF token");
+    const data = await res.json();
+    return data.csrf;
+  }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -33,33 +54,41 @@ export default function CommentForm() {
       return;
     }
 
+    if (!user) {
+      setError("You must be logged in to submit a comment.");
+      return;
+    }
+
     setError("");
     setLoading(true);
 
     const form = e.currentTarget;
-
-    // Convert numeric rating → stars text
     const ratingText = "★".repeat(rating) + "☆".repeat(5 - rating);
-    if (!user?.name) {
-      throw new Error("User name is required");
-    }
-    const formData = {
-      name: user?.name,
-      // Append stars directly to message
-      message:
-        (form.elements.namedItem("message") as HTMLTextAreaElement).value +
-        `\n\nRating: ${ratingText}`,
-    };
+    const message = (form.elements.namedItem("message") as HTMLTextAreaElement).value;
 
     try {
-      await fetch("https://bot.attariarash.workers.dev/", {
+      const csrfToken = await getCSRFToken();
+
+      const res = await fetch("https://typeset.live/", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRF-Token": csrfToken,
+        },
+        credentials: "include", // send session cookie
+        body: JSON.stringify({
+          name: user.name,
+          message: message + `\n\nRating: ${ratingText}`,
+        }),
       });
+
+      if (!res.ok) throw new Error("Failed to submit comment");
 
       form.reset();
       setRating(0);
+    } catch (err: any) {
+      console.error(err);
+      setError(err.message || "Something went wrong");
     } finally {
       setLoading(false);
     }
@@ -70,31 +99,31 @@ export default function CommentForm() {
       <CardHeader>
         <h2 className="text-lg font-semibold">Leave a Comment</h2>
       </CardHeader>
+
       <form onSubmit={handleSubmit}>
         <CardContent className="space-y-4">
           <div>
             {!user ? (
-              <GoogleLogin
-                onSuccess={(credentialResponse) => {
-                  if (credentialResponse.credential) {
-                    const decoded: any = jwtDecode(
-                      credentialResponse.credential
-                    );
-                    setUser({
-                      name: decoded.name,
-                      email: decoded.email,
-                      picture: decoded.picture,
-                    });
-                  }
+              <Button
+                type="button"
+                className="w-full"
+                onClick={() => {
+                  // Redirect to Worker login
+                  window.location.href = "https://typeset.live/login";
                 }}
-                onError={() => {
-                  console.log("Login Failed");
-                }}
-              />
+              >
+                Sign in with Google
+              </Button>
             ) : (
-              <Input name="name" placeholder={user.name} key="NAME" disabled />
+              <Input
+                name="name"
+                placeholder={user.name}
+                value={user.name}
+                disabled
+              />
             )}
           </div>
+
           <Textarea name="message" placeholder="Your Comment" required />
 
           {/* Rating Stars */}
@@ -116,13 +145,13 @@ export default function CommentForm() {
                   onMouseLeave={() => setHover(0)}
                 />
               ))}
-              <span className="ml-2 text-sm text-gray-600"></span>
             </div>
             {error && <p className="text-red-500 text-sm">{error}</p>}
           </div>
         </CardContent>
+
         <CardFooter>
-          <Button type="submit" disabled={loading} className="w-full">
+          <Button type="submit" disabled={loading || !user} className="w-full">
             {loading ? "Sending..." : "Send"}
           </Button>
         </CardFooter>
