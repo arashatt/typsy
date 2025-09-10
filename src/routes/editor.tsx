@@ -8,14 +8,13 @@ function Editor() {
 
   return (
     <>
-      <div key={location.pathname}>
-        <h1 className="text-green-600">About Page</h1>
-        <p className="mt-4 text-gray-700">
-          This is the about page content. You can add any static or dynamic
-          information here.
-        </p>
+      <div
+        key={location.pathname}
+        className="min-h-screen flex flex-col bg-gray-50 font-garamond text-custom gradient-background"
+      >
         <Codemirror />
       </div>
+      <p>hi</p>
     </>
   );
 }
