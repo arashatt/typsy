@@ -48,46 +48,39 @@ export default function CommentForm() {
       setError("Please select a rating before submitting.");
       return;
     }
-    if (!user) {
-      setError("You must be logged in to submit a comment.");
-      return;
-    }
 
     setError("");
     setLoading(true);
 
     const form = e.currentTarget;
+
+    // Convert numeric rating → stars text
     const ratingText = "★".repeat(rating) + "☆".repeat(5 - rating);
-    const message = (form.elements.namedItem("message") as HTMLTextAreaElement).value;
+    if (!user?.name) {
+      throw new Error("User name is required");
+    }
+    const formData = {
+      name: user?.name,
+      // Append stars directly to message
+      message:
+        (form.elements.namedItem("message") as HTMLTextAreaElement).value +
+        `\n\nRating: ${ratingText}`,
+    };
 
     try {
-      const csrfToken = await getCSRFToken();
-
-      const res = await fetch("/", {
+      await fetch("https://bot.attariarash.workers.dev/", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-CSRF-Token": csrfToken,
-        },
-        credentials: "include",
-        body: JSON.stringify({
-          name: user.name,
-          message: message + `\n\nRating: ${ratingText}`,
-        }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
       });
-
-      if (!res.ok) throw new Error("Failed to submit comment");
 
       form.reset();
       setRating(0);
-    } catch (err: any) {
-      console.error(err);
-      setError(err.message || "Something went wrong");
     } finally {
       setLoading(false);
     }
   }
-
+  
   return (
     <Card className="w-full max-w-md mx-auto shadow-lg">
       <CardHeader>
