@@ -34,13 +34,6 @@ export default function CommentForm() {
     fetchUser();
   }, []);
 
-  async function getCSRFToken() {
-    const res = await fetch("/csrf", { credentials: "include" });
-    if (!res.ok) throw new Error("Failed to get CSRF token");
-    const data = await res.json();
-    return data.csrf;
-  }
-
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
