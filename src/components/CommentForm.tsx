@@ -4,7 +4,12 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Card, CardHeader, CardContent, CardFooter } from "@/components/ui/card";
+import {
+  Card,
+  CardHeader,
+  CardContent,
+  CardFooter,
+} from "@/components/ui/card";
 import { Star } from "lucide-react";
 
 type User = {
@@ -37,20 +42,20 @@ export default function CommentForm() {
   }, []);
 
   useEffect(() => {
-  async function fetchUser() {
-    try {
-      const res = await fetch("https://typeset.live/user", {
-        credentials: "include", // important: send HttpOnly cookie
-      });
-      if (!res.ok) return;
-      const data = await res.json();
-      setUser(data);
-    } catch (err) {
-      console.error(err);
+    async function fetchUser() {
+      try {
+        const res = await fetch("https://typeset.live/user", {
+          credentials: "include", // important: send HttpOnly cookie
+        });
+        if (!res.ok) return;
+        const data = await res.json();
+        setUser(data);
+      } catch (err) {
+        console.error(err);
+      }
     }
-  }
-  fetchUser();
-}, []);
+    fetchUser();
+  }, []);
 
   // Fetch CSRF token from Worker
   async function getCSRFToken() {
@@ -80,7 +85,8 @@ export default function CommentForm() {
 
     const form = e.currentTarget;
     const ratingText = "★".repeat(rating) + "☆".repeat(5 - rating);
-    const message = (form.elements.namedItem("message") as HTMLTextAreaElement).value;
+    const message = (form.elements.namedItem("message") as HTMLTextAreaElement)
+      .value;
 
     try {
       const csrfToken = await getCSRFToken();
