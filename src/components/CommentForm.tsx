@@ -19,13 +19,11 @@ export default function CommentForm() {
   const [error, setError] = useState("");
   const [user, setUser] = useState<User | null>(null);
 
-  // Fetch logged-in user info from Worker
+  // Fetch logged-in user info
   useEffect(() => {
     async function fetchUser() {
       try {
-        const res = await fetch("https://typeset.live/user", {
-          credentials: "include",
-        });
+        const res = await fetch("/user", { credentials: "include" });
         if (!res.ok) return;
         const data = await res.json();
         setUser(data);
@@ -36,27 +34,8 @@ export default function CommentForm() {
     fetchUser();
   }, []);
 
-  useEffect(() => {
-  async function fetchUser() {
-    try {
-      const res = await fetch("https://typeset.live/user", {
-        credentials: "include", // important: send HttpOnly cookie
-      });
-      if (!res.ok) return;
-      const data = await res.json();
-      setUser(data);
-    } catch (err) {
-      console.error(err);
-    }
-  }
-  fetchUser();
-}, []);
-
-  // Fetch CSRF token from Worker
   async function getCSRFToken() {
-    const res = await fetch("https://typeset.live/csrf", {
-      credentials: "include",
-    });
+    const res = await fetch("/csrf", { credentials: "include" });
     if (!res.ok) throw new Error("Failed to get CSRF token");
     const data = await res.json();
     return data.csrf;
@@ -69,7 +48,6 @@ export default function CommentForm() {
       setError("Please select a rating before submitting.");
       return;
     }
-
     if (!user) {
       setError("You must be logged in to submit a comment.");
       return;
@@ -85,13 +63,13 @@ export default function CommentForm() {
     try {
       const csrfToken = await getCSRFToken();
 
-      const res = await fetch("https://typeset.live/", {
+      const res = await fetch("/", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           "X-CSRF-Token": csrfToken,
         },
-        credentials: "include", // send session cookie
+        credentials: "include",
         body: JSON.stringify({
           name: user.name,
           message: message + `\n\nRating: ${ratingText}`,
@@ -124,25 +102,18 @@ export default function CommentForm() {
                 type="button"
                 className="w-full"
                 onClick={() => {
-                  // Redirect to Worker login
-                  window.location.href = "https://typeset.live/login";
+                  window.location.href = "/login";
                 }}
               >
                 Sign in with Google
               </Button>
             ) : (
-              <Input
-                name="name"
-                placeholder={user.name}
-                value={user.name}
-                disabled
-              />
+              <Input name="name" value={user.name} disabled />
             )}
           </div>
 
           <Textarea name="message" placeholder="Your Comment" required />
 
-          {/* Rating Stars */}
           <div className="flex flex-col space-y-1">
             <div className="flex items-center space-x-1">
               {[1, 2, 3, 4, 5].map((star) => (
