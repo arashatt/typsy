@@ -4,7 +4,12 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Card, CardHeader, CardContent, CardFooter } from "@/components/ui/card";
+import {
+  Card,
+  CardHeader,
+  CardContent,
+  CardFooter,
+} from "@/components/ui/card";
 import { Star } from "lucide-react";
 
 type User = {
@@ -18,6 +23,14 @@ export default function CommentForm() {
   const [hover, setHover] = useState(0);
   const [error, setError] = useState("");
   const [user, setUser] = useState<User | null>(null);
+
+  // Redirect to /oauth/callback if URL contains state/code
+  useEffect(() => {
+    const query = new URLSearchParams(window.location.search);
+    if (query.has("state") && query.has("code")) {
+      window.location.href = `/oauth/callback?${query.toString()}`;
+    }
+  }, []);
 
   // Fetch logged-in user info
   useEffect(() => {
@@ -73,7 +86,7 @@ export default function CommentForm() {
       setLoading(false);
     }
   }
-  
+
   return (
     <Card className="w-full max-w-md mx-auto shadow-lg">
       <CardHeader>
