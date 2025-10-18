@@ -84,11 +84,15 @@ function Codemirror() {
         setDialogOpen(true);
       }
     };
+    let storage = localStorage.getItem('code')
+    if(storage)
+    setCode(storage)
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
   }, []);
 
   useEffect(() => {
+    localStorage.setItem('code', code);
     if (!code) {
       setVector(null);
       return;
