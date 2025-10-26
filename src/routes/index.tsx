@@ -18,8 +18,17 @@ function Index() {
       <div key={location.pathname}>
         <h1 className="text-red-600">About Page</h1>
         <p className="mt-4 text-gray-700">
-          This is the about page content. You can add any static or dynamic
-          information here.
+          <div className="intro-container">
+            <h1>Welcome to Typst Editor</h1>
+            <p>
+              A modern, fast, and intuitive environment for creating beautifully
+              typeset documents. Designed with simplicity and power in mind, it
+              brings real-time rendering, smart syntax highlighting, and instant
+              previews to your writing workflow. Whether you're crafting
+              research papers, reports, or presentations, our editor helps you
+              focus on your content while Typst takes care of the design.
+            </p>
+          </div>
         </p>
         <CommentForm />
       </div>
