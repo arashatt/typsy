@@ -29,7 +29,7 @@ function Index() {
         <section className="pt-24 pb-24 bg-white shadow-inner">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <h1 className="text-5xl md:text-6xl font-extrabold text-gray-900 leading-tight mb-4">
-              Typesetting Reimagined. Write Better with Typst.{" "}
+              Typesetting Reimagined. Write Better with Typeset.{" "}
               <span className="text-green-600">Live.</span>
             </h1>
 
